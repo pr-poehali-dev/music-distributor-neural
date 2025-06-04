@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
+import { useAuth } from "@/App";
+import { useNavigate } from "react-router-dom";
 
 interface ModernSidebarProps {
   activeModule: string;
@@ -50,6 +52,21 @@ const ModernSidebar = ({
     },
   ];
 
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleModuleClick = (moduleId: string) => {
+    if (moduleId === "promotion") navigate("/promotion");
+    else if (moduleId === "distribution") navigate("/distribution");
+    else if (moduleId === "ai-assistant") navigate("/ai-assistant");
+    else if (moduleId === "social") navigate("/social");
+    else if (moduleId === "marketplace") navigate("/marketplace");
+    else {
+      navigate("/");
+      onModuleChange(moduleId);
+    }
+  };
+
   const quickActions = [
     {
       label: "Быстрый релиз",
@@ -90,15 +107,37 @@ const ModernSidebar = ({
             <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" />
             <AvatarFallback>МИ</AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-white">Дмитрий Волков</p>
-            <p className="text-xs text-slate-400">Premium Artist</p>
+          <div>
+            <p className="text-sm font-medium text-white">{user?.name}</p>
+            <div className="flex items-center space-x-2">
+              <p className="text-xs text-slate-400">
+                {user?.subscription === "free"
+                  ? "Бесплатный"
+                  : user?.subscription === "artist"
+                    ? "Артист"
+                    : "Лейбл"}
+              </p>
+              <Button
+                onClick={() => navigate("/subscription")}
+                className="text-xs px-2 py-1 h-auto bg-gradient-to-r from-purple-500 to-cyan-500 hover:opacity-90"
+              >
+                Улучшить
+              </Button>
+            </div>
           </div>
-          <Icon
-            name="Settings"
-            size={16}
-            className="text-slate-400 hover:text-purple-400 cursor-pointer"
-          />
+          <div className="flex space-x-1">
+            <Icon
+              name="Settings"
+              size={16}
+              className="text-slate-400 hover:text-purple-400 cursor-pointer"
+            />
+            <Icon
+              name="LogOut"
+              size={16}
+              className="text-slate-400 hover:text-red-400 cursor-pointer"
+              onClick={logout}
+            />
+          </div>
         </div>
       </div>
 
@@ -137,7 +176,7 @@ const ModernSidebar = ({
                   ? "bg-gradient-to-r from-purple-500/20 to-cyan-500/20 text-white border border-purple-500/30"
                   : "text-slate-300 hover:text-white hover:bg-slate-700/50"
               }`}
-              onClick={() => onModuleChange(module.id)}
+              onClick={() => handleModuleClick(module.id)}
             >
               <Icon name={module.icon as any} size={16} className="mr-3" />
               <span className="flex-1 text-left">{module.label}</span>
